@@ -8,12 +8,19 @@ app.use(express.json())
 app.use(cookieParser())
 const allowedOrigins = [
     "http://localhost:5173",
+    "https://ai-interview-assistant-git-main-pawan11.vercel.app",
     "https://ai-interview-assistant-pawan11.vercel.app"
 ];
 
 app.use(cors({
-    origin: allowedOrigins,
-    credentials: true
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`Origin ${origin} not allowed by CORS`));
+        }
+    },
+    credentials: true,
 }));
 
 /* require all the routes here */
