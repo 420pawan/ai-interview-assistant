@@ -1,4 +1,5 @@
 import React,{useState} from 'react'
+import axios from 'axios'
 import { useNavigate, Link } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 
@@ -8,13 +9,23 @@ const Register = () => {
     const [ username, setUsername ] = useState("")
     const [ email, setEmail ] = useState("")
     const [ password, setPassword ] = useState("")
+    const [ error, setError ] = useState("")
 
     const {loading,handleRegister} = useAuth()
     
     const handleSubmit = async (e) => {
         e.preventDefault()
-        await handleRegister({username,email,password})
-        navigate("/")
+        setError("")
+
+        try {
+            await handleRegister({username,email,password})
+            navigate("/")
+        } catch (err) {
+            console.error("Registration failed", err)
+            setError(axios.isAxiosError(err)
+                ? err.response?.data?.message || "Unable to register. Please try again."
+                : err.message || "Unable to register. Please try again.")
+        }
     }
 
     if(loading){
@@ -25,6 +36,7 @@ const Register = () => {
         <main>
             <div className="form-container">
                 <h1>Register</h1>
+                {error && <p role="alert">{error}</p>}
 
                 <form onSubmit={handleSubmit}>
 
