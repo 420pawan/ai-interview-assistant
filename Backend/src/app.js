@@ -6,6 +6,7 @@ const app = express();
 
 const allowedOrigins = new Set([
     "http://localhost:5173",
+    "https://ai-interview-assistant-alpha-six.vercel.app",
     "https://ai-interview-assistant-pawan11.vercel.app"
 ]);
 
