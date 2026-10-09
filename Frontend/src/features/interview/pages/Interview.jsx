@@ -11,6 +11,14 @@ const NAV_ITEMS = [
     { id: 'roadmap', label: 'Road Map', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11" /></svg>) },
 ]
 
+const hasCompleteReportSections = (report) => {
+    const requiredArrays = [ "technicalQuestions", "behavioralQuestions", "skillGaps", "preparationPlan" ]
+
+    return Boolean(report) &&
+        requiredArrays.every((field) => Array.isArray(report[field])) &&
+        report.preparationPlan.every((day) => Array.isArray(day.tasks))
+}
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 const QuestionCard = ({ item, index }) => {
     const [ open, setOpen ] = useState(false)
@@ -83,6 +91,15 @@ const Interview = () => {
         return (
             <main className='loading-screen'>
                 <h1>Interview report not found.</h1>
+            </main>
+        )
+    }
+
+    if (!hasCompleteReportSections(report)) {
+        return (
+            <main className='loading-screen'>
+                <h1>Unable to load your interview plan</h1>
+                <p>Interview report is incomplete and cannot be displayed.</p>
             </main>
         )
     }
