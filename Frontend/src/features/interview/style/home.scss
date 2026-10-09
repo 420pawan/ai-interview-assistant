@@ -202,6 +202,18 @@ $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
     gap: 0.5rem;
 }
 
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .dropzone {
     display: flex;
     flex-direction: column;
@@ -368,6 +380,56 @@ $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 
         &:hover {
             color: $text-primary;
+        }
+    }
+}
+
+.selected-resume {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    background-color: rgba($accent, 0.08);
+    border: 1px solid rgba($accent, 0.35);
+    border-radius: 0.5rem;
+
+    &__name,
+    &__size {
+        margin: 0;
+    }
+
+    &__name {
+        max-width: 220px;
+        overflow: hidden;
+        color: $text-primary;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__size {
+        margin-top: 0.15rem;
+        color: $text-muted;
+        font-size: 0.75rem;
+    }
+
+    &__remove {
+        flex-shrink: 0;
+        padding: 0.35rem 0.55rem;
+        color: $accent-alt;
+        background: transparent;
+        border: 1px solid rgba($accent, 0.45);
+        border-radius: 0.35rem;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.75rem;
+        font-weight: 600;
+
+        &:hover {
+            color: #fff;
+            background-color: rgba($accent, 0.2);
         }
     }
 }

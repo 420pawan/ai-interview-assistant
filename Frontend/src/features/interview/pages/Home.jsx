@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import "../style/home.scss"
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate } from 'react-router'
@@ -9,6 +9,7 @@ const Home = () => {
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
     const [ resumeFile, setResumeFile ] = useState(null)
+    const resumeInputRef = useRef(null)
 
     const navigate = useNavigate()
 
@@ -18,6 +19,27 @@ const Home = () => {
         if (data?._id) {
             navigate(`/interview/${data._id}`)
         }
+    }
+
+    const handleResumeChange = (event) => {
+        setResumeFile(event.target.files?.[0] || null)
+    }
+
+    const removeResume = () => {
+        setResumeFile(null)
+
+        // Reset the native input so the same file can be selected again.
+        if (resumeInputRef.current) {
+            resumeInputRef.current.value = ''
+        }
+    }
+
+    const formatFileSize = (bytes) => {
+        if (bytes < 1024 * 1024) {
+            return `${Math.max(1, Math.round(bytes / 1024))} KB`
+        }
+
+        return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
     }
 
     if (loading) {
@@ -79,21 +101,33 @@ const Home = () => {
                                 Upload Resume
                                 <span className='badge badge--best'>Best Results</span>
                             </label>
+                            <input
+                                ref={resumeInputRef}
+                                className='visually-hidden'
+                                type='file'
+                                id='resume'
+                                name='resume'
+                                accept='.pdf,application/pdf'
+                                onChange={handleResumeChange}
+                            />
                             <label className='dropzone' htmlFor='resume'>
                                 <span className='dropzone__icon'>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>
                                 </span>
-                                <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
+                                <p className='dropzone__title'>{resumeFile ? 'Click to replace your resume' : 'Click to upload or drag &amp; drop'}</p>
                                 <p className='dropzone__subtitle'>PDF (Max 3MB)</p>
-                                <input
-                                    hidden
-                                    type='file'
-                                    id='resume'
-                                    name='resume'
-                                    accept='.pdf,application/pdf'
-                                    onChange={(event) => setResumeFile(event.target.files?.[0] || null)}
-                                />
                             </label>
+                            {resumeFile && (
+                                <div className='selected-resume' aria-live='polite'>
+                                    <div>
+                                        <p className='selected-resume__name'>{resumeFile.name}</p>
+                                        <p className='selected-resume__size'>{formatFileSize(resumeFile.size)}</p>
+                                    </div>
+                                    <button type='button' className='selected-resume__remove' onClick={removeResume}>
+                                        Remove
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         {/* OR Divider */}
