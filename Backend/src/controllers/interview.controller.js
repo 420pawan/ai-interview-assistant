@@ -14,6 +14,45 @@ function hasCompleteReportSections(interviewReport) {
         interviewReport.preparationPlan.every((day) => Array.isArray(day.tasks))
 }
 
+function createBadRequestError(message) {
+    const error = new Error(message)
+    error.statusCode = 400
+    return error
+}
+
+async function extractResumeText(file) {
+    if (file.mimetype !== "application/pdf") {
+        throw createBadRequestError("Resume must be a PDF file.")
+    }
+
+    if (!file.buffer.subarray(0, 5).equals(Buffer.from("%PDF-"))) {
+        throw createBadRequestError("Resume must be a valid PDF file.")
+    }
+
+    let parser
+    try {
+        parser = new pdfParse.PDFParse({ data: file.buffer })
+        const resumeContent = await parser.getText()
+        const resume = resumeContent.text?.trim()
+
+        if (!resume) {
+            throw createBadRequestError("Resume PDF does not contain readable text.")
+        }
+
+        return resume
+    } catch (error) {
+        if (error.statusCode === 400) {
+            throw error
+        }
+
+        throw createBadRequestError("Resume PDF could not be read.")
+    } finally {
+        if (parser) {
+            await parser.destroy().catch(() => {})
+        }
+    }
+}
+
 
 
 /**
@@ -35,12 +74,7 @@ async function generateInterViewReportController(req, res) {
 
         let resume = ""
         if (req.file) {
-            if (req.file.mimetype !== "application/pdf") {
-                return res.status(400).json({ message: "Resume must be a PDF file." })
-            }
-
-            const resumeContent = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText()
-            resume = resumeContent.text
+            resume = await extractResumeText(req.file)
         }
 
         const interViewReportByAi = await generateInterviewReport({
@@ -63,7 +97,12 @@ async function generateInterViewReportController(req, res) {
         })
     } catch (error) {
         console.error(`Interview report generation failed: ${error.message}`)
-        return res.status(500).json({ message: "Unable to generate an interview report. Please try again." })
+        const statusCode = error.statusCode || 500
+        const message = statusCode === 400
+            ? error.message
+            : "Unable to generate an interview report. Please try again."
+
+        return res.status(statusCode).json({ message })
     }
 
 }
