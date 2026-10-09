@@ -14,12 +14,7 @@ function isAllowedOrigin(origin) {
         return true;
     }
 
-    try {
-        const url = new URL(origin);
-        return url.protocol === "https:" && url.hostname.endsWith(".vercel.app");
-    } catch {
-        return false;
-    }
+    return false;
 }
 
 app.use(express.json());
