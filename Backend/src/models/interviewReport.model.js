@@ -80,10 +80,26 @@ const interviewReportSchema = new mongoose.Schema({
         min: 0,
         max: 100,
     },
-    technicalQuestions: [ technicalQuestionSchema ],
-    behavioralQuestions: [ behavioralQuestionSchema ],
-    skillGaps: [ skillGapSchema ],
-    preparationPlan: [ preparationPlanSchema ],
+    technicalQuestions: {
+        type: [ technicalQuestionSchema ],
+        required: true,
+        default: []
+    },
+    behavioralQuestions: {
+        type: [ behavioralQuestionSchema ],
+        required: true,
+        default: []
+    },
+    skillGaps: {
+        type: [ skillGapSchema ],
+        required: true,
+        default: []
+    },
+    preparationPlan: {
+        type: [ preparationPlanSchema ],
+        required: true,
+        default: []
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users"
@@ -99,4 +115,4 @@ const interviewReportSchema = new mongoose.Schema({
 
 const interviewReportModel = mongoose.model("InterviewReport", interviewReportSchema);
 
-module.exports = interviewReportModel;  
+module.exports = interviewReportModel;

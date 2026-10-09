@@ -13,7 +13,7 @@ export const useInterview = () => {
         throw new Error("useInterview must be used within an InterviewProvider")
     }
 
-    const { loading, setLoading, report, setReport, reports, setReports } = context
+    const { loading, setLoading, error, setError, report, setReport, reports, setReports } = context
 
     const generateReport = async ({ jobDescription, selfDescription, resumeFile }) => {
         setLoading(true)
@@ -32,16 +32,28 @@ export const useInterview = () => {
 
     const getReportById = async (interviewId) => {
         setLoading(true)
-        let response = null
+        setError(null)
+        setReport(null)
         try {
-            response = await getInterviewReportById(interviewId)
-            setReport(response.interviewReport)
+            const response = await getInterviewReportById(interviewId)
+            const interviewReport = response?.interviewReport
+            const requiredArrays = [ "technicalQuestions", "behavioralQuestions", "skillGaps", "preparationPlan" ]
+
+            if (!interviewReport ||
+                requiredArrays.some((field) => !Array.isArray(interviewReport[field])) ||
+                interviewReport.preparationPlan.some((day) => !Array.isArray(day.tasks))) {
+                throw new Error("Interview report is incomplete and cannot be displayed.")
+            }
+
+            setReport(interviewReport)
+            return interviewReport
         } catch (error) {
             console.log(error)
+            setError(error.response?.data?.message || error.message || "Unable to load interview report.")
+            return null
         } finally {
             setLoading(false)
         }
-        return response.interviewReport
     }
 
     const getReports = async () => {
@@ -86,6 +98,6 @@ export const useInterview = () => {
         }
     }, [ interviewId ])
 
-    return { loading, report, reports, generateReport, getReportById, getReports, getResumePdf }
+    return { loading, error, report, reports, generateReport, getReportById, getReports, getResumePdf }
 
 }

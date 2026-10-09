@@ -2,6 +2,17 @@ const pdfParse = require("pdf-parse")
 const { generateInterviewReport, generateResumePdf } = require("../services/ai.service")
 const interviewReportModel = require("../models/interviewReport.model")
 
+const reportArrayFields = [
+    "technicalQuestions",
+    "behavioralQuestions",
+    "skillGaps",
+    "preparationPlan"
+]
+
+function hasCompleteReportSections(interviewReport) {
+    return reportArrayFields.every((field) => Array.isArray(interviewReport[field])) &&
+        interviewReport.preparationPlan.every((day) => Array.isArray(day.tasks))
+}
 
 
 
@@ -41,11 +52,17 @@ async function getInterviewReportByIdController(req, res) {
 
     const { interviewId } = req.params
 
-    const interviewReport = await interviewReportModel.findOne({ _id: interviewId, user: req.user.id })
+    const interviewReport = await interviewReportModel.findOne({ _id: interviewId, user: req.user.id }).lean()
 
     if (!interviewReport) {
         return res.status(404).json({
             message: "Interview report not found."
+        })
+    }
+
+    if (!hasCompleteReportSections(interviewReport)) {
+        return res.status(500).json({
+            message: "Interview report is incomplete and cannot be displayed."
         })
     }
 

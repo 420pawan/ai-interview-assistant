@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import '../style/interview.scss'
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate, useParams } from 'react-router'
@@ -59,21 +59,30 @@ const RoadMapDay = ({ day }) => (
 // ── Main Component ────────────────────────────────────────────────────────────
 const Interview = () => {
     const [ activeNav, setActiveNav ] = useState('technical')
-    const { report, getReportById, loading, getResumePdf } = useInterview()
+    const { report, error, loading, getResumePdf } = useInterview()
     const { interviewId } = useParams()
 
-    useEffect(() => {
-        if (interviewId) {
-            getReportById(interviewId)
-        }
-    }, [ interviewId ])
-
-
-
-    if (loading || !report) {
+    if (loading) {
         return (
             <main className='loading-screen'>
                 <h1>Loading your interview plan...</h1>
+            </main>
+        )
+    }
+
+    if (error) {
+        return (
+            <main className='loading-screen'>
+                <h1>Unable to load your interview plan</h1>
+                <p>{error}</p>
+            </main>
+        )
+    }
+
+    if (!report) {
+        return (
+            <main className='loading-screen'>
+                <h1>Interview report not found.</h1>
             </main>
         )
     }
