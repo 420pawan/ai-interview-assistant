@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router'
 
 const Home = () => {
 
-    const { loading, generateReport,reports } = useInterview()
+    const { loading, error, generateReport, reports } = useInterview()
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
     const resumeInputRef = useRef()
@@ -28,6 +28,8 @@ const Home = () => {
 
     return (
         <div className='home-page'>
+
+            {error && <p role="alert">{error}</p>}
 
             {/* Page Header */}
             <header className='page-header'>

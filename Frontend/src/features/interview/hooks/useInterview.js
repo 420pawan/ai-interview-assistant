@@ -58,17 +58,25 @@ export const useInterview = () => {
 
     const getReports = async () => {
         setLoading(true)
-        let response = null
+        setError(null)
         try {
-            response = await getAllInterviewReports()
-            setReports(response.interviewReports)
+            const response = await getAllInterviewReports()
+            const interviewReports = response?.interviewReports
+
+            if (!Array.isArray(interviewReports)) {
+                throw new Error("Interview reports response is invalid.")
+            }
+
+            setReports(interviewReports)
+            return interviewReports
         } catch (error) {
             console.log(error)
+            setReports([])
+            setError(error.response?.data?.message || error.message || "Unable to load interview reports.")
+            return []
         } finally {
             setLoading(false)
         }
-
-        return response.interviewReports
     }
 
     const getResumePdf = async (interviewReportId) => {
