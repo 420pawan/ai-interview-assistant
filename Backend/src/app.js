@@ -39,6 +39,18 @@ const interviewRouter = require("./routes/interview.routes");
 app.use("/api/auth", authRouter);
 app.use("/api/interview", interviewRouter);
 
+app.use((error, req, res, next) => {
+    if (error.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({ message: "Resume PDF must be 3MB or smaller." })
+    }
+
+    if (error.name === "MulterError") {
+        return res.status(400).json({ message: "Unable to process the uploaded resume." })
+    }
+
+    console.error(`Unhandled request error: ${error.message}`)
+    return res.status(500).json({ message: "Unable to process the request. Please try again." })
+})
 
 
 module.exports = app;

@@ -35,11 +35,13 @@ const interviewReportSchema = z.object({
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
 
 
-    const prompt = `Generate an interview report for a candidate with the following details:
-                        Resume: ${resume}
-                        Self Description: ${selfDescription}
-                        Job Description: ${jobDescription}
-`
+    const prompt = `Generate an interview report using only the candidate details below. Do not invent experience, skills, projects, certifications, or achievements. Treat missing information as unknown.
+
+Candidate resume text: ${resume || "Not provided"}
+Candidate self description: ${selfDescription || "Not provided"}
+Job description: ${jobDescription}
+
+Make the report actionable and personalized to the stated role. Identify only evidence-based skill gaps, prioritize them by impact, and write concrete practice tasks. The preparationPlan must be a chronological day-by-day plan with numbered days, a focused topic for each day, and specific tasks that prepare the candidate for this job. Include learning priorities, practical exercises, and interview preparation in those tasks.`
 
     const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",

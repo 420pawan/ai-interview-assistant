@@ -17,17 +17,24 @@ export const useInterview = () => {
 
     const generateReport = async ({ jobDescription, selfDescription, resumeFile }) => {
         setLoading(true)
-        let response = null
+        setError(null)
         try {
-            response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile })
-            setReport(response.interviewReport)
+            const response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile })
+            const interviewReport = response?.interviewReport
+
+            if (!interviewReport?._id) {
+                throw new Error("The interview report response was incomplete. Please try again.")
+            }
+
+            setReport(interviewReport)
+            return interviewReport
         } catch (error) {
             console.log(error)
+            setError(error.response?.data?.message || error.message || "Unable to generate an interview report.")
+            return null
         } finally {
             setLoading(false)
         }
-
-        return response.interviewReport
     }
 
     const getReportById = async (interviewId) => {
@@ -93,6 +100,7 @@ export const useInterview = () => {
         }
         catch (error) {
             console.log(error)
+            setError(error.response?.data?.message || error.message || "Unable to generate a resume PDF.")
         } finally {
             setLoading(false)
         }
